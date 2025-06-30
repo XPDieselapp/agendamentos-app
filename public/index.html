@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agendamentos</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-dark text-light">
+  <div class="container py-4">
+  <h1 class="text-warning mb-4">Agendar</h1>
+
+  <!-- CONTAINER FLEXÍVEL -->
+  <div class="row g-4">
+
+    <!-- FORMULÁRIO -->
+    <div class="col-md-5">
+      <h2 class="text-warning">Novo Agendamento</h2>
+      <form id="form-agendamento">
+        <div class="mb-3">
+  <label for="setor" class="form-label">Setor</label>
+  <input type="text" id="setor" class="form-control" required>
+</div>
+        <div class="mb-3">
+  <label for="nome" class="form-label">Nome</label>
+  <input type="text" id="nome" class="form-control" required>
+</div>
+        <div class="mb-3">
+  <label for="horario" class="form-label">Horario</label>
+  <input type="datetime-local" id="horario" class="form-control" required>
+</div>
+        <div class="mb-3">
+  <label for="tecnico" class="form-label">Tecnico</label>
+  <input type="text" id="tecnico" class="form-control" required>
+</div>
+        <div class="mb-3">
+  <label for="modelo" class="form-label">Modelo</label>
+  <input type="text" id="modelo" class="form-control" required>
+</div>
+        <button type="submit" class="btn btn-warning w-100">Agendar</button>
+      </form>
+    </div>
+
+    <!-- LISTA -->
+    <div class="col-md-7">
+      <h2 class="text-warning">Agendamentos</h2>
+
+      <label>Filtrar por setor:</label>
+      <select id="filtroSetor" onchange="carregarAgendamentos()" style="width: 100%; margin-bottom: 10px;">
+        <option value="">Todos</option>
+        <option value="Oficina">Oficina</option>
+        <option value="Vendas">Vendas</option>
+        <option value="Garantia">Garantia</option>
+      </select>
+
+      <label for="mes">Filtrar por mês:</label>
+      <select id="mes" onchange="carregarAgendamentos()" style="width: 100%; margin-bottom: 10px;">
+        <option value="all">Todos</option>
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+
+      <button onclick="carregarAgendamentos()" class="btn btn-dark w-100">Filtrar</button>
+
+      <ul id="lista-agendamentos" class="list-group mt-3"></ul>
+    </div>
+  </div>
+
+  <ul id="lista-agendamentos"></ul>
+
+  <script>
+    async function editarAgendamento(id) {
+  const res = await fetch('/agendamentos');
+  const agendamentos = await res.json();
+  const agendamento = agendamentos.find(a => a.id === id);
+
+  if (!agendamento) return alert("Agendamento não encontrado.");
+
+  const novoSetor = prompt("Novo setor:", agendamento.setor);
+  const novoNome = prompt("Novo nome:", agendamento.nome);
+  const novoTecnico = prompt("Novo técnico:", agendamento.tecnico);
+  const novoModelo = prompt("Novo modelo:", agendamento.modelo || '');
+  const novoHorario = prompt("Novo horário (AAAA-MM-DDTHH:MM):", agendamento.horario.slice(0, 16));
+
+  if (novoSetor && novoNome && novoTecnico && novoModelo && novoHorario) {
+    await fetch(`/agendamentos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        setor: novoSetor,
+        nome: novoNome,
+        tecnico: novoTecnico,
+        modelo: novoModelo,
+        horario: novoHorario
+      })
+    });
+    carregarAgendamentos();
+  }
+}
+
+     async function excluirAgendamento(id) {
+  if (confirm("Deseja realmente excluir este agendamento?")) {
+    await fetch(`/agendamentos/${id}`, { method: 'DELETE' });
+    carregarAgendamentos();
+  }
+}
+  // Função para carregar os agendamentos da API
+  async function carregarAgendamentos() {
+  const res = await fetch('/agendamentos');
+  const agendamentos = await res.json();
+
+  const lista = document.getElementById('lista-agendamentos');
+  const mesSelecionado = document.getElementById('mes').value;
+  const setorSelecionado = document.getElementById('filtroSetor').value;
+
+  lista.innerHTML = '';
+
+  agendamentos.forEach(a => {
+    const data = new Date(a.horario);
+    const mes = data.getMonth() + 1;
+
+    const filtroMesOK = mesSelecionado === 'all' || Number(mesSelecionado) === mes;
+    const filtroSetorOK = !setorSelecionado || a.setor === setorSelecionado;
+
+    if (filtroMesOK && filtroSetorOK) {
+      const li = document.createElement('li');
+      li.className = 'list-group-item bg-secondary text-light';
+      li.innerHTML = `
+        <strong>${data.toLocaleString('pt-BR')}</strong> - ${a.setor} - ${a.nome}<br>
+        Técnico: ${a.tecnico}<br>
+        Modelo: ${a.modelo}<br>
+        <label>
+          <input type="checkbox" onchange="atualizarStatusAtendido(${a.id}, this.checked)" ${a.atendido ? 'checked' : ''}>
+          Atendido
+        </label><br>
+        <button onclick="editarAgendamento(${a.id})">✏️</button>
+        <button onclick="excluirAgendamento(${a.id})">🗑️</button>
+      `;
+      lista.appendChild(li);
+    }
+  });
+}
+
+  // Envio do formulário de agendamento
+  document.getElementById('form-agendamento').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const setor = document.getElementById('setor').value;
+    const nome = document.getElementById('nome').value;
+    const tecnico = document.getElementById('tecnico').value;
+    const horario = document.getElementById('horario').value;
+    const modelo = document.getElementById("modelo").value;
+
+    await fetch('/agendamentos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ setor, horario, nome, tecnico, modelo })
+    });
+
+    document.getElementById('form-agendamento').reset();
+    carregarAgendamentos();
+  });
+
+  async function atualizarStatusAtendido(id, status) {
+    await fetch(`/agendamentos/${id}/atendido`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ atendido: status })
+    });
+  }
+
+  carregarAgendamentos(); // Carrega ao abrir a página
+</script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</div> <!-- fim do container -->
+</body>
+
+</body>
+</html>
