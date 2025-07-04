@@ -1,3 +1,15 @@
 [2025-06-30T17:31:19.863Z] IP ::1 criou um novo agendamento para Julia Fernanda (Vendas)
 [2025-06-30T17:31:32.578Z] IP ::1 atualizou 'atendido' para true no agendamento ID 9
 [2025-06-30T17:35:53.721Z] IP 1 atualizou 'atendido' para true no agendamento ID 7
+[2025-07-04T14:21:17.797Z] IP 1 criou um novo agendamento para Leandro (Garantia)
+[2025-07-04T14:33:34.048Z] IP 1 editou o agendamento ID 1 com os dados: {"setor":"Garantia","nome":"Leandro","tecnico":"Samuel","modelo":"4 Bicos Injetores 231","horario":"2025-07-04T13:00"}
+[2025-07-04T14:47:31.532Z] IP 1 editou o agendamento ID 1 com os dados: {"setor":"Garantia","nome":"Leandro","tecnico":"Samuel","modelo":"4 Bicos Injetores 231","horario":"2025-07-04T16:30:00.000Z"}
+[2025-07-04T14:48:02.428Z] IP 1 criou um novo agendamento para Julia Fernanda (Vendas)
+[2025-07-04T14:48:22.658Z] IP 1 editou o agendamento ID 2 com os dados: {"setor":"Vendas","nome":"Julia Fernanda","tecnico":"Silas","modelo":"4 Bicos Injetores Amarok 647","horario":"2025-07-04T20:30:00.000Z"}
+[2025-07-04T14:49:20.090Z] IP 1 editou o agendamento ID 2 com os dados: {"setor":"Vendas","nome":"Julia Fernanda","tecnico":"Silas","modelo":"4 Bicos Injetores Amarok 647","horario":"2025-07-04T17:30:00.000Z"}
+[2025-07-04T14:56:12.065Z] IP 1 editou o agendamento ID 2 com os dados: {"setor":"Vendas","nome":"Julia Fernanda","tecnico":"Silas","modelo":"4 Bicos Injetores Amarok 647","horario":"2025-07-04T17:30:00.000Z"}
+[2025-07-04T14:58:45.708Z] IP 1 excluiu o agendamento ID 2
+[2025-07-04T15:01:24.650Z] IP 1 criou um novo agendamento para Julia Fernanda (Vendas)
+[2025-07-04T15:01:36.308Z] IP 1 editou o agendamento ID 3 com os dados: {"setor":"Vendas","nome":"Julia Fernanda","tecnico":"Moises","modelo":"1 Bomba de Alta Pressão 320","horario":"2025-06-04T16:03:00.000Z"}
+[2025-07-04T15:02:11.882Z] IP 1 atualizou 'atendido' para true no agendamento ID 3
+[2025-07-04T15:34:04.085Z] IP 1 editou o agendamento ID 1 com os dados: {"setor":"Garantia","nome":"Leandro","tecnico":"Samuel","modelo":"4 Bicos Injetores 231","horario":"2025-07-04T17:30:00.000Z"}

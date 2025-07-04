@@ -11,6 +11,12 @@
 <body class="bg-dark text-light">
   <div class="container py-4">
   <h1 class="text-warning mb-4">Agendar</h1>
+  <p class="text-warning small fst-italic text-center">
+  *Prazo de 1 hora de duração para cada teste, agendamentos no mesmo horário terão a preferência por ordem de chegada.*
+</p>
+<p class="text-warning small fst-italic text-center">
+  *HORÁRIO DE AGENDAMENTOS (Seg a Qui das 08:00 até 17:00) (Sex 08:00 até 16:00) (Tolerância 15 minutos de atraso.)*
+</p>
 
   <!-- CONTAINER FLEXÍVEL -->
   <div class="row g-4">
@@ -84,7 +90,7 @@
     async function editarAgendamento(id) {
   const res = await fetch('/agendamentos');
   const agendamentos = await res.json();
-  const agendamento = agendamentos.find(a => a.id === id);
+  const agendamento = agendamentos.find(a => a.id == id);
 
   if (!agendamento) return alert("Agendamento não encontrado.");
 
@@ -92,7 +98,15 @@
   const novoNome = prompt("Novo nome:", agendamento.nome);
   const novoTecnico = prompt("Novo técnico:", agendamento.tecnico);
   const novoModelo = prompt("Novo modelo:", agendamento.modelo || '');
-  const novoHorario = prompt("Novo horário (AAAA-MM-DDTHH:MM):", agendamento.horario.slice(0, 16));
+
+  // ✅ Corrige o horário UTC para local, formatado como "YYYY-MM-DDTHH:MM"
+  const dataHorario = new Date(agendamento.horario);
+  const tzOffset = dataHorario.getTimezoneOffset() * 60000;
+  const localDate = new Date(dataHorario.getTime() - tzOffset);
+  const horarioFormatado = localDate.toISOString().slice(0, 16);
+
+  const novoHorarioInput = prompt("Novo horário (AAAA-MM-DDTHH:MM):", horarioFormatado);
+  const novoHorario = new Date(novoHorarioInput).toISOString(); // ✅ converte de volta para UTC
 
   if (novoSetor && novoNome && novoTecnico && novoModelo && novoHorario) {
     await fetch(`/agendamentos/${id}`, {
@@ -153,24 +167,27 @@
   });
 }
 
-  // Envio do formulário de agendamento
-  document.getElementById('form-agendamento').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const setor = document.getElementById('setor').value;
-    const nome = document.getElementById('nome').value;
-    const tecnico = document.getElementById('tecnico').value;
-    const horario = document.getElementById('horario').value;
-    const modelo = document.getElementById("modelo").value;
+  // Envio do formulário de agendamento (com correção de fuso horário)
+document.getElementById('form-agendamento').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const setor = document.getElementById('setor').value;
+  const nome = document.getElementById('nome').value;
+  const tecnico = document.getElementById('tecnico').value;
+  const horarioInput = document.getElementById('horario').value;
+  const modelo = document.getElementById("modelo").value;
 
-    await fetch('/agendamentos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ setor, horario, nome, tecnico, modelo })
-    });
+  const horario = new Date(horarioInput).toISOString(); // converte corretamente para UTC
 
-    document.getElementById('form-agendamento').reset();
-    carregarAgendamentos();
+  await fetch('/agendamentos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ setor, horario, nome, tecnico, modelo })
   });
+
+  document.getElementById('form-agendamento').reset();
+  carregarAgendamentos();
+});
+
 
   async function atualizarStatusAtendido(id, status) {
     await fetch(`/agendamentos/${id}/atendido`, {

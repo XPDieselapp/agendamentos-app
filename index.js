@@ -29,6 +29,17 @@ function obterIP(req) {
   return ip.replace(/^.*:/, '') || 'desconhecido';
 }
 
+// 🔍 Rota de teste de conexão com o Supabase
+app.get('/test-db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ status: 'Conexão com banco bem-sucedida!', hora: result.rows[0].now });
+  } catch (error) {
+    console.error('Erro ao conectar no banco:', error);
+    res.status(500).send('Erro ao conectar no banco de dados');
+  }
+});
+
 // Listar agendamentos
 app.get('/agendamentos', async (req, res) => {
   const result = await pool.query('SELECT * FROM agendamentos ORDER BY horario');
@@ -129,6 +140,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
+
 
 
 
